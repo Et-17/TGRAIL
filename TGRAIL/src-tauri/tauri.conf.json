@@ -52,9 +52,9 @@
     "windows": [
       {
         "title": "TGRAIL",
-        "width": 800,
-        "height": 600,
-        "resizable": true,
+        "width": 500,
+        "height": 500,
+        "resizable": false,
         "fullscreen": false
       }
     ],
