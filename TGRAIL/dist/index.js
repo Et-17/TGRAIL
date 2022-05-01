@@ -1,11 +1,19 @@
+const invoke = window.__TAURI__.invoke;
+
 var drawing = true;
 var should_draw = false;
+var pointsx = [],
+    pointsy = [];
+// The minimum distance required for points to be logged
+var min_dist = 50;
 
 function onMouseMove(ev, ctx) {
     if (!should_draw) return;
 
     var x = ev.layerX,
-        y = ev.layerY;
+        y = ev.layerY,
+        d_x = pointsx[pointsx.length - 1] - x,
+        d_y = pointsy[pointsy.length - 1] - y;
 
     if (!drawing) {
         drawing = true;
@@ -14,16 +22,26 @@ function onMouseMove(ev, ctx) {
         ctx.lineTo(x, y);
         ctx.stroke();
     }
+
+    if (Math.sqrt((d_x * d_x) + (d_y * d_y)) <= min_dist) return;
+    pointsx.push(x);
+    pointsy.push(y);
 }
 
 function onMouseUp(ev, ctx) {
     should_draw = false;
-    ctx.endPath();
+    ctx.closePath();
+    invoke("log_points", {
+        xPts: pointsx,
+        yPts: pointsy
+    });
 }
 
 function onMouseDown(ev, ctx) {
     should_draw = true;
     ctx.beginPath();
+    pointsx = [];
+    pointsy = []
 }
 
 // Initialize
