@@ -3,6 +3,8 @@
     windows_subsystem = "windows"
 )]
 
+use crate::char_rec::Point;
+
 mod char_rec;
 
 #[tauri::command]
@@ -12,7 +14,8 @@ fn log_points(x_pts: Vec<i32>, y_pts: Vec<i32>) {
 }
 
 fn main() {
-    println!("{}", char_rec::Character::pos_to_seg(16, 16, 10, 7));
+    println!("{}", char_rec::pos_to_seg(
+        Point{x: 16, y: 16}, Point{x: 10, y: 7})); 
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![log_points])
         .run(tauri::generate_context!())
