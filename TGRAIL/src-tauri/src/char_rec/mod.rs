@@ -40,3 +40,15 @@ pub fn determine_borders(path: Vec<Point>) -> Vec<Point> {
 pub fn calculate_aspect(corner: Point) -> f32 {
     (corner.x as f32) / (corner.y as f32)
 }
+
+/// Converts seperate x and y path vectors into a single point vector
+pub fn zip_x_y_path(path_x: Vec<i32>, path_y: Vec<i32>) -> Vec<Point> {
+    let mut point_path = Vec::<Point>::with_capacity(path_x.len());
+    for i in 0..path_x.len() {
+        point_path.push(Point {
+            x: path_x[i],
+            y: path_y[i],
+        });
+    }
+    point_path
+}
