@@ -9,8 +9,7 @@ mod char_rec;
 
 #[tauri::command]
 fn log_points(x_pts: Vec<i32>, y_pts: Vec<i32>) {
-    println!("{:?}", x_pts);
-    println!("{:?}", y_pts);
+    println!("{:?}", char_rec::zip_x_y_path(x_pts, y_pts));
 }
 
 fn main() {
