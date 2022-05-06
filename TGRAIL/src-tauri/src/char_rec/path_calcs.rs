@@ -71,3 +71,13 @@ pub fn path_directions(path: Vec<Point>) -> Vec<Direction> {
         })
         .collect()
 }
+
+/// Calculates the angle between three points in radians, where b is the
+/// vertex of the angle
+pub fn calculate_angle(a: &Point, b: &Point, c: &Point) -> f64 {
+    let y1 = (c.y - b.y) as f64;
+    let x1 = (c.x - a.x) as f64;
+    let y2 = (b.y - a.y) as f64;
+    let x2 = (b.x - a.x) as f64;
+    y1.atan2(x1) - y2.atan2(x2)
+}
