@@ -1,5 +1,5 @@
-use crate::char_rec::subdefs::Point;
 use crate::char_rec::subdefs::Direction;
+use crate::char_rec::subdefs::Point;
 use crate::char_rec::subdefs::Section;
 
 /// Using the target point and the point of the low corner (each
@@ -15,8 +15,8 @@ pub fn pos_to_seg(corner: Point, target: Point) -> Section {
 /// Returns a vector containing [upper left corner x,
 /// upper left corner y, lower right corner x, lower right corner y]
 pub fn determine_borders(path: Vec<Point>) -> Vec<Point> {
-    let mut up = Point{x: 0, y: 0,};
-    let mut down = Point{x: 0, y: 0,};
+    let mut up = Point { x: 0, y: 0 };
+    let mut down = Point { x: 0, y: 0 };
     for point in path {
         up.x = if point.x < up.x { point.x } else { up.x };
         down.x = if point.x < down.x { point.x } else { up.x };
@@ -42,4 +42,32 @@ pub fn zip_x_y_path(path_x: Vec<i32>, path_y: Vec<i32>) -> Vec<Point> {
         });
     }
     point_path
+}
+
+/// Calcutes direction between two points
+pub fn calculate_direction(a: &Point, b: &Point) -> Direction {
+    let rise = b.y - a.y;
+    let run = b.x - a.x;
+    match (rise.abs() > run.abs(), rise > 0, run > 0) {
+        (true, true, _) => Direction::Up,
+        (true, false, _) => Direction::Down,
+        (false, _, true) => Direction::Left,
+        (false, _, false) => Direction::Right,
+    }
+}
+
+/// Determines direction change on a path
+pub fn path_directions(path: Vec<Point>) -> Vec<Direction> {
+    let mut last = Direction::Still;
+    path[1..]
+        .iter()
+        .zip(path.iter())
+        .map(|(x, y)| calculate_direction(&x, &y))
+        .filter(|&x| {
+            std::mem::discriminant(&last) != {
+                last = x;
+                std::mem::discriminant(&last)
+            }
+        })
+        .collect()
 }
