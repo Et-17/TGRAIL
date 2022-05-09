@@ -7,7 +7,7 @@ pub enum Direction {
     Still,
 }
 
-#[derive(Debug)]
+#[derive(Debug, Copy, Clone)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

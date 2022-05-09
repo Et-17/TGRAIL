@@ -5,7 +5,7 @@ var should_draw = false;
 var pointsx = [],
     pointsy = [];
 // The minimum distance required for points to be logged
-var min_dist = 50;
+var min_dist = 20;
 
 function onMouseMove(ev, ctx) {
     if (!should_draw) return;
@@ -31,6 +31,7 @@ function onMouseMove(ev, ctx) {
 function onMouseUp(ev, ctx) {
     should_draw = false;
     ctx.closePath();
+    if (pointsx.length <= 5) return;
     invoke("log_points", {
         xPts: pointsx,
         yPts: pointsy

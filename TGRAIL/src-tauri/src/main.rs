@@ -9,9 +9,15 @@ mod char_rec;
 
 #[tauri::command]
 fn log_points(x_pts: Vec<i32>, y_pts: Vec<i32>) {
+    let zipped = char_rec::zip_x_y_path(x_pts, y_pts);
     println!(
         "{:?}",
-        char_rec::path_directions(char_rec::zip_x_y_path(x_pts, y_pts))
+        zipped[..]
+            .iter()
+            .zip(zipped[1..].iter())
+            .zip(zipped[2..].iter())
+            .map(|((x, y), z)| char_rec::points_in_line(x, y, z, 16))
+            .collect::<Vec<bool>>()
     );
 }
 

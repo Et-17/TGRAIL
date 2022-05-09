@@ -44,8 +44,9 @@ pub fn zip_x_y_path(path_x: Vec<i32>, path_y: Vec<i32>) -> Vec<Point> {
     point_path
 }
 
-/// Calcutes direction between two points
-pub fn calculate_direction(a: &Point, b: &Point) -> Direction {
+/// Calcutes direction between two points and returns the
+/// Direction enumerable
+pub fn calculate_enum_direction(a: &Point, b: &Point) -> Direction {
     let rise = b.y - a.y;
     let run = b.x - a.x;
     match (rise.abs() > run.abs(), rise > 0, run > 0) {
@@ -56,13 +57,27 @@ pub fn calculate_direction(a: &Point, b: &Point) -> Direction {
     }
 }
 
+/// Calculates direction between two points and returns it as a
+/// direction assuming that the circle is composed of segs directions
+pub fn calculate_direction(a: &Point, b: &Point, segs: i32) -> i32 {
+    let rise = (b.y - a.y) as f32;
+    let run = (b.x - a.x) as f32;
+    ((rise.atan2(run) + 3.14) * ((segs as f32) / 6.28)) as i32
+}
+
+/// Determines if three points are in a straight line, with an accuracy
+/// determined by segs
+pub fn points_in_line(a: &Point, b: &Point, c: &Point, segs: i32) -> bool {
+    calculate_direction(a, b, segs) == calculate_direction(b, c, segs)
+}
+
 /// Determines direction change on a path
 pub fn path_directions(path: Vec<Point>) -> Vec<Direction> {
     let mut last = Direction::Still;
     path[1..]
         .iter()
         .zip(path.iter())
-        .map(|(x, y)| calculate_direction(&x, &y))
+        .map(|(x, y)| calculate_enum_direction(&x, &y))
         .filter(|&x| {
             std::mem::discriminant(&last) != {
                 last = x;
