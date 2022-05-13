@@ -57,22 +57,28 @@ pub fn calculate_enum_direction(a: &Point, b: &Point) -> Direction {
     }
 }
 
-/// Calculates direction between two points and returns it as a
-/// direction assuming that the circle is composed of segs directions
-pub fn calculate_direction(a: &Point, b: &Point, segs: i32) -> i32 {
+/// Calculates direction between two points and returns it in degrees
+pub fn calculate_direction(a: &Point, b: &Point) -> f32 {
     let rise = (b.y - a.y) as f32;
     let run = (b.x - a.x) as f32;
-    ((rise.atan2(run) + 3.14) * ((segs as f32) / 6.28)) as i32
+    match rise.atan2(run) * (180.0 / 3.1415) {
+        d if d < 0.0 => d + 360.0,
+        d => d,
+    }
 }
 
-/// Determines if three points are in a straight line, with an accuracy
-/// determined by segs
-pub fn points_in_line(a: &Point, b: &Point, c: &Point, segs: i32) -> bool {
-    calculate_direction(a, b, segs) == calculate_direction(b, c, segs)
+/// Calculates the change between two directions
+pub fn calculate_change(a: f32, b: f32) -> f32 {
+    match b - a {
+        c if c < -180.0 => 360.0 + c,
+        c if c > 180.0 => 360.0 - c,
+        c => c,
+    }
+    .abs()
 }
 
 /// Determines direction change on a path
-pub fn path_directions(path: Vec<Point>) -> Vec<Direction> {
+pub fn path_enum_directions(path: Vec<Point>) -> Vec<Direction> {
     let mut last = Direction::Still;
     path[1..]
         .iter()
@@ -87,12 +93,32 @@ pub fn path_directions(path: Vec<Point>) -> Vec<Direction> {
         .collect()
 }
 
-/// Calculates the angle between three points in radians, where b is the
-/// vertex of the angle
-pub fn calculate_angle(a: &Point, b: &Point, c: &Point) -> f64 {
-    let y1 = (c.y - b.y) as f64;
-    let x1 = (c.x - a.x) as f64;
-    let y2 = (b.y - a.y) as f64;
-    let x2 = (b.x - a.x) as f64;
-    y1.atan2(x1) - y2.atan2(x2)
+/// Determines the directions of a path in degrees, and returns a tuple
+/// with the direction and the corresponding point
+pub fn path_directions(path: Vec<Point>) -> Vec<(f32, Point)> {
+    path[..]
+        .iter()
+        .zip(path[1..].iter())
+        .map(|(x, y)| calculate_direction(x, y))
+        .zip(path[..].iter())
+        .map(|(x, &y)| (x, y))
+        .collect()
+}
+
+/// Finds the corners in a path
+pub fn find_corners(path: Vec<(Point)>, sens: f32, corner: f32) -> Vec<Point> {
+    let directions = path_directions(path);
+    directions[..]
+        .iter()
+        .zip(directions[1..].iter())
+        .zip(directions[2..].iter())
+        .zip(directions[3..].iter())
+        .zip(directions[4..].iter())
+        .filter(|((((a, b), c), d), e)| {
+            calculate_change(a.0, b.0) <= sens
+                && calculate_change(c.0, e.0) <= sens
+                && calculate_change(b.0, c.0) >= corner
+        })
+        .map(|((((a, b), c), d), e)| c.1)
+        .collect()
 }

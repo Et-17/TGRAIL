@@ -7,7 +7,7 @@ pub enum Direction {
     Still,
 }
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, serde::Serialize)]
 pub struct Point {
     pub x: i32,
     pub y: i32,

@@ -4,10 +4,9 @@ var drawing = true;
 var should_draw = false;
 var pointsx = [],
     pointsy = [];
-// The minimum distance required for points to be logged
-var min_dist = 20;
+var ctx;
 
-function onMouseMove(ev, ctx) {
+function onMouseMove(ev) {
     if (!should_draw) return;
 
     var x = ev.layerX,
@@ -15,32 +14,40 @@ function onMouseMove(ev, ctx) {
         d_x = pointsx[pointsx.length - 1] - x,
         d_y = pointsy[pointsy.length - 1] - y;
 
+    if (Math.sqrt((d_x * d_x) + (d_y * d_y)) <= 5) return;
+
     if (!drawing) {
         drawing = true;
         ctx.moveTo(x, y);
+        ctx.beginPath();
     } else {
         ctx.lineTo(x, y);
         ctx.stroke();
     }
 
-    if (Math.sqrt((d_x * d_x) + (d_y * d_y)) <= min_dist) return;
     pointsx.push(x);
     pointsy.push(y);
 }
 
-function onMouseUp(ev, ctx) {
+function onMouseUp(ev) {
     should_draw = false;
-    ctx.closePath();
     if (pointsx.length <= 5) return;
     invoke("log_points", {
         xPts: pointsx,
         yPts: pointsy
+    }).then(x => {
+        console.log(x);
+        for (var i = 0; i < x.length; i++) {
+            ctx.rect(x[i].x, x[i].y, 10, 10);
+        }
+        ctx.stroke();
     });
 }
 
-function onMouseDown(ev, ctx) {
+function onMouseDown(ev) {
     should_draw = true;
-    ctx.beginPath();
+    drawing = false;
+    ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     pointsx = [];
     pointsy = []
 }
@@ -50,14 +57,14 @@ if (window.addEventListener) {
     window.addEventListener('load', () => {
         // Connect to canvas element
         var canvas = document.getElementById("c");
-        var ctx = canvas.getContext("2d");
+        ctx = canvas.getContext("2d");
 
         canvas.addEventListener('mousedown', e =>
-            onMouseDown(e, ctx), false);
+            onMouseDown(e), false);
         canvas.addEventListener('mouseup', e =>
-            onMouseUp(e, ctx), false);
+            onMouseUp(e), false);
         canvas.addEventListener('mousemove', e =>
-            onMouseMove(e, ctx), false);
+            onMouseMove(e), false);
     });
 } else {
     alert("error while hooking to onload");
